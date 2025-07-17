@@ -7,6 +7,8 @@ Track and organize your to-do board with visual tags and scriptable workflows.
 
 ## 💡 Feature
 
+![demo](/assects/img/purrgr3ss_demo.png)
+
 - A customizable markdown board (`purrboard.md`) with **badge-based visual tasks**
 - A Python-powered CLI to inject dates, archive tasks, and organize markdown fast
 - A beautiful badge + tag system to color-code and filter your work
@@ -75,7 +77,3 @@ purrgress archive
 * Styling powered by [Markdown Preview Enhanced](https://shd101wyy.github.io/markdown-preview-enhanced/)
 * Custom `.less` styles live in `.crossnote/style.less`
 * Taskboards are version-controllable, commit-friendly, and nerd-approved™
-
----
-
-[![Last Sweep](https://img.shields.io/github/last-commit/kay-a11y/purrgr3ss?style=flat-square)](/docs/purrboard.md)
