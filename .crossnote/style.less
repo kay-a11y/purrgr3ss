@@ -1,0 +1,127 @@
+
+/* Please visit the URL below for more information: */
+/*   https://shd101wyy.github.io/markdown-preview-enhanced/#/customize-css */
+
+.markdown-preview.markdown-preview {
+  // modify your style here
+  // eg: background-color: blue;
+}
+
+/* =========================================================
+   Purrgress Task Board (scoped overrides for .purrboard)
+   ========================================================= */
+
+/* --- core color tokens --- */
+:root {
+  --purr-text: #cec5b4;
+  --purr-heading: #e6dccd; 
+  --purr-link: #8de88d;  
+  --purr-link-visited: #7edf7e;
+  --purr-tag-bg: #000;
+  --purr-tag-fg: #cbc1cf;
+  --purr-tag-pad-y: 1px;
+  --purr-tag-pad-x: 3px;
+  --purr-tag-radius: 3px;
+}
+
+/* --- body text override --- */
+.purrboard {
+  color: var(--purr-text);
+  line-height: 1.5;
+  // font-size: 1rem;
+}
+
+/* headings */
+.purrboard h1,
+.purrboard h2,
+.purrboard h3,
+.purrboard h4,
+.purrboard h5,
+.purrboard h6 {
+  color: var(--purr-heading);
+  margin-top: 1.4em; 
+  margin-bottom: 0.6em;
+}
+
+/* list spacing */
+.purrboard ul,
+.purrboard ol {
+  margin-left: 1.4em;
+  padding-left: 0;
+}
+
+/* top-level li spacing */
+.purrboard > ul > li,
+.purrboard section > ul > li {
+  margin-bottom: 0.65em;
+}
+
+/* generic li fallback */
+.purrboard li {
+  margin-bottom: 0.45em;
+}
+
+/* nested ul li tighter */
+.purrboard ul ul > li {
+  margin-bottom: 0.35em;
+}
+
+/* slightly larger checkboxes */
+
+.purrboard input[type=checkbox] {
+  transform: scale(1.15);
+  margin-right: 0.25em;
+}
+
+/* links */
+.purrboard a {
+  color: var(--purr-link);
+}
+.purrboard a:visited {
+  color: var(--purr-link-visited);
+}
+.purrboard a:hover,
+.purrboard a:focus {
+  text-decoration: underline;
+}
+
+/* --- tag chips --- */
+.purrboard .tag,
+.purrboard .tag-primary {
+  font-family: monospace;
+  background: var(--purr-tag-bg);
+  color: var(--purr-tag-fg);
+  padding: var(--purr-tag-pad-y) var(--purr-tag-pad-x);
+  border-radius: var(--purr-tag-radius);
+  white-space: nowrap;
+  display: inline-block;
+  margin: 0 2px;
+}
+
+/* ghost / secondary tags */
+.purrboard .tag-ghost {
+  background: transparent;
+  color: var(--purr-tag-fg);
+  opacity: 0.65;
+  border: 1px solid #555;
+  padding: 0 var(--purr-tag-pad-x);
+}
+
+/* note text in expandable details */
+.purrboard .note {
+  font-style: italic;
+  opacity: 0.85;
+}
+
+/* details summary styling */
+.purrboard details > summary {
+  cursor: pointer;
+  display: inline-block;
+  margin: 4px 0;
+  // font-size: 0.9em;
+  color: #bbb;
+}
+.purrboard details[open] > summary {
+  color: #fff;
+}
+
