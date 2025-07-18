@@ -21,14 +21,14 @@ DONE_BULLET_RE = re.compile(r'^\s*[-*]\s*\[[xX]\]\s')
 def _is_continuation_line(line: str) -> bool:
     stripped = line.strip()
     if stripped == "":
-        return False 
-    if stripped.startswith("<!--"):
         return False
     if stripped.startswith("* [") or stripped.startswith("- ["):
         return False
     if stripped.startswith("#"):
         return False
-    return line[0].isspace()
+    if stripped.startswith("<!-- ============="):
+        return False
+    return True
 
 def _find_block(lines: List[str], start_marker: str, end_marker: str) -> Tuple[int, int]:
     start_idx = None
