@@ -1,8 +1,8 @@
 # 🐾 purrgr3ss
 
 [![🐱 Open Taskboard](https://img.shields.io/badge/🐱_Open_Taskboard-ff69b4?style=flat-square)](/docs/purrboard.md)
-[![🌈 View Tags](https://img.shields.io/badge/View_Tags-ffb347?style=flat-square)](/docs/purrboard.md)
-[![🏷️ Badge List](https://img.shields.io/badge/Badge_List-87ceeb?style=flat-square)](/docs/purrboard.md)
+[![🌈 View Tags](https://img.shields.io/badge/View_Tags-ffb347?style=flat-square)](/docs/tags.md)
+[![🏷️ Badge List](https://img.shields.io/badge/Badge_List-87ceeb?style=flat-square)](/docs/badges.md)
 
 Lightweight markdown task boards / todo list + Python CLI automation.
 
