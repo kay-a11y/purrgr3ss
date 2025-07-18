@@ -27,10 +27,11 @@ pip install -e .
 
 This installs the console script **`purrgress`** into your environment.
 
-Check:
+Run:
 
 ```bash
 purrgress --help
+purrgress purrdate --write # initialize date tags
 ```
 
 ## Subcommands

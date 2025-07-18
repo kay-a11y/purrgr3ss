@@ -71,16 +71,7 @@
 
 * [ ] ![block][block]  _todo_  <span class="tag tag-primary">#feel.idea-dump</span>
 
-<!-- ============= ARCHIVE END ============= -->
-
-## ✅ Done (2025-07)
-
-<details>
-<summary> 🔆 Show completed July tasks</summary>
-
-* [x] ![done] _todo_  <span class="tag tag-primary">#proj.example</span> 
-2025-07-17T13:00:00+00:00
-</details>
+<!-- ============= ACTIVE END ============= -->
 
 </div>
 
