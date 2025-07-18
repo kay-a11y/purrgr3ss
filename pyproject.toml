@@ -1,12 +1,12 @@
 [project]
 name = "purrgress"
-version = "0.1.0"
+version = "0.2.0"
 description = "personal productivity automation suite 😼"
 requires-python = ">=3.9"
-dependencies = []
+dependencies = ["click"]
 
 [project.scripts]
-purrgress = "purrgress.cli:main"
+purrgress = "purrgress.cli:cli"
 
 [build-system]
 requires      = ["setuptools>=61.0", "wheel"]
@@ -15,4 +15,4 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools.packages.find]
 where    = [""]       
 include  = ["purrgress*"] 
-exclude  = ["tests*", "docs"]
+exclude  = ["assets", "tests*", "docs"]

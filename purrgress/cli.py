@@ -1,75 +1,84 @@
 """
-🐾 purrgress/cli.py - Personal Productivity CLI
--------------------------------------------------------
+🐾 purrgr3ss/cli.py - Markdown Productivity CLI
+------------------------------------------------------
 
-This is the central command-line interface (CLI) entrypoint for the `purrgress` suite -
-a modular, customizable markdown automation and productivity tool.
+Central command-line entrypoint for the `purrgress` suite: lightweight tools
+for maintaining markdown task boards, injecting date tokens, and archiving
+completed work.
 
 Usage:
     purrgress <subcommand> [options]
 
-Example:
-    purrgress purrdate --file docs/purrboard.md --preview --write
+Examples:
+    purrgress purrdate --file docs/purrboard.md --preview
+    purrgress purrdate --write
+    purrgress archive --preview
+    purrgress archive
 
--------------------------------------------------------
+------------------------------------------------------
+Current Subcommands
 
-📦 Current Subcommands:
-- purrdate
-    Updates markdown files with current date/time info.
-    Supports both {{TAGS}} and <!--DATE-XYZ--> anchor patterns.
-
+purrdate
+    Update markdown files with current date/time tokens and/or anchored
+    <!--DATE-XYZ--> blocks.
     Options:
-      -f, --file           Path to target markdown file
-      --preview            Show unified diff before applying changes
-      --write              Confirm writing changes to file
-      --tags-only          Only replace {{TAGS}}, skip anchored blocks
-      --anchors-only       Only replace anchors, skip {{TAGS}}
+      -f, --file         Target markdown file (default: docs/purrboard.md)
+      --preview          Show unified diff; do not write
+      --write            Apply changes
+      --tags-only        Update {{TAGS}} only; skip anchors
+      --anchors-only     Update anchors only; skip {{TAGS}}
 
--------------------------------------------------------
+archive
+    Move completed tasks (* [x] / - [x]) from an ACTIVE block in the source
+    board into a month bucket in the destination archive file. Removes them
+    from the source by default.
+    Options:
+      --src              Source board (default: docs/purrboard.md)
+      --dst              Archive file (default: docs/archived.md)
+      --preview          Show diffs; do not write
+
+------------------------------------------------------
+Markers
+
+The archive tool looks for these markers in your markdown:
+
+    <!-- ============= ACTIVE START ============= -->
+    <!-- ============= ACTIVE END ============= -->
+
+    <!-- ============= ARCHIVE START ============= -->
+    <!-- ============= ARCHIVE END ============= -->
+
+Content between ACTIVE markers is scanned for completed tasks. Archived items
+are inserted just above ARCHIVE END, grouped under `## ✅ Done (YYYY-MM)`.
+
+------------------------------------------------------
+Install
+
+Add this to pyproject.toml:
+
+    [project.scripts]
+    purrgress = "purrgress.cli:cli"
+
+Then install editable:
+
+    pip install -e .
+
+Run anywhere in that environment:
+
+    purrgress --help
+
+------------------------------------------------------
+Built with markdown, cats, and quiet persistence.
 """
 
-import argparse
-from purrgress.scripts import purrdate
+import click
+from purrgress.scripts.purrdate import purrdate
+from purrgress.scripts.archive import archive
 
-def main() -> None:
-    parser = argparse.ArgumentParser(
-        prog="purrgress",
-        description="🐾 Personal Productivity CLI - markdown, automation, and more.",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter
-    )
+@click.group()
+def cli():
+    """purrgress: CLI tools for boards, dates, archiving."""
+    pass
 
-    subparsers = parser.add_subparsers(dest="command", required=True)
-
-    # ================================
-    # SUBCOMMAND: purrdate
-    # ================================
-    pdate = subparsers.add_parser("purrdate", help="Update markdown files with current dates.")
-    pdate.add_argument("-f", "--file", default="docs/purrboard.md",
-        help="Target markdown file to update"
-    )
-    pdate.add_argument("--preview", action="store_true",
-        help="Show diff preview before writing"
-    )
-    pdate.add_argument("--write", action="store_true",
-        help="Actually write changes to file"
-    )
-    pdate.add_argument("--tags-only", action="store_true",
-        help="Only replace {{TAGS}}, skip <!--DATE-XYZ--> blocks"
-    )
-    pdate.add_argument("--anchors-only", action="store_true",
-        help="Only replace <!--DATE-XYZ--> anchors, skip {{TAGS}}"
-    )
-
-    args = parser.parse_args()
-
-    if args.command == "purrdate":
-        purrdate.run(
-            file=args.file,
-            preview=args.preview,
-            write=args.write,
-            tags_only=args.tags_only,
-            anchors_only=args.anchors_only
-        )
-
-if __name__ == "__main__":
-    main()
+cli.add_command(purrdate)
+cli.add_command(archive)

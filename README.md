@@ -1,79 +1,162 @@
 # 🐾 purrgr3ss
 
-A sleek all-in-one CLI + markdown task manager.  
-Track and organize your to-do board with visual tags and scriptable workflows.
-
 [![Open Taskboard](https://img.shields.io/badge/🐱_Open--Taskboard-ff5e98?style=for-the-badge)](/docs/purrboard.md)
 
-## 💡 Feature
+Lightweight markdown task boards / todo list + Python CLI automation.
 
-![demo](/assects/img/purrgr3ss_demo.png)
+🐈‍⬛ **purrgr3ss** is text‑first. Use git. Archive often. Pet cat. Repeat.
 
-- A customizable markdown board (`purrboard.md`) with **badge-based visual tasks**
-- A Python-powered CLI to inject dates, archive tasks, and organize markdown fast
-- A beautiful badge + tag system to color-code and filter your work
+**CLI command:** `purrgress`
 
-## 🛠️ CLI Quickstart
+## What It Does
 
-Install locally:
+* Maintain a markdown task board (`docs/purrboard.md`) with visual badges + tags.
+* Auto‑inject rolling dates (today / ISO week / month) into placeholders and anchored comment blocks.
+* Sweep completed tasks into an archive file (`docs/archived.md`), grouped by month.
+* Preview all changes before writing.
+
+Minimal. Text‑based. Git‑friendly.
+
+## Install
+
+From the repo root:
 
 ```bash
 pip install -e .
 ```
 
-Run with:
+This installs the console script **`purrgress`** into your environment.
+
+Check:
 
 ```bash
-purrgress purrdate --preview
+purrgress --help
 ```
 
-Options:
+## Subcommands
 
-* `--file` or `-f`: path to your markdown board (default: `docs/purrboard.md`)
-* `--preview`: see the output before writing changes
-* `--tags-only`: only inject date/tags without editing anchored blocks
+### `purrgress purrdate`
 
-## 📁 Folder Map
+Update date placeholders and/or anchored date blocks in a markdown file.
 
-```
-purrgr3ss/
-├── docs/
-│   ├── purrboard.md       ← Your main task board
-│   ├── tags.md            ← Tag palette reference
-│   └── badges.md          ← Badge style swatches
-├── purrgress/
-│   ├── cli.py             ← Command-line entry point
-│   └── utils/             ← Logic for tag/date injection
-├── archive/               ← [Optional] Auto-saved completed tasks
-├── .crossnote/            ← MPE styling: custom CSS, HTML head, etc.
-└── pyproject.toml         ← Install as CLI: `purrgress`
-```
+**Default target:** `docs/purrboard.md`
 
-## 🏷️ Badges & Tags
+**Tokens supported** (from `purrgress.utils.date.date_vars()`):
 
-Use Markdown checkboxes + styled tags to categorize tasks:
+* `{{DATE_TODAY}}`
+* `{{DATE_WEEK}}`
+* `{{DATE_WEEK_RANGE}}`
+* `{{DATE_MONTH}}`
+* `{{LAST_UPDATED}}`
+
+**Anchors:** HTML comments followed by a `<sub>` line are rewritten, e.g.
 
 ```markdown
-* [ ] ![learn][learn] _Start DCT chapter_ <span class="tag tag-primary">#ml.course</span>
+<!--DATE-TODAY-->
+<sub><em>{{DATE_TODAY}}</em></sub>
 ```
 
-Explore:
+**Flags:**
 
-* [Badges](/docs/badges.md)
-* [Tags](/docs/tags.md)
+```bash
+purrgress purrdate -f docs/purrboard.md --preview   # show diff only
+purrgress purrdate -f docs/purrboard.md --write     # apply
+purrgress purrdate --tags-only                      # update {{...}} only
+purrgress purrdate --anchors-only                   # update anchors only
+```
 
-## 🧹 Archiving Logic
+> If neither `--write` nor `--preview` is given, a preview is shown (no write).
 
-When a task is marked `[x]`, run:
+### `purrgress archive`
+
+Move completed tasks from the **ACTIVE** block in a board into a month bucket in an archive file.
+
+**Defaults:**
+
+* Source board: `docs/purrboard.md`
+* Destination archive: `docs/archived.md`
+* Removes archived tasks from source.
+
+**Preview first:**
+
+```bash
+purrgress archive --preview
+```
+
+**Apply:**
 
 ```bash
 purrgress archive
 ```
 
-☑ Completed entries will be **auto-moved** to `archive/`, with date stamps preserved.
+**Console output:**
 
-## 🐱 Nerd Notes
+```txt
+📤 Archived N items to docs/archived.md
+🧹 Removed N items from docs/purrboard.md
+```
 
-* Styling powered by [Markdown Preview Enhanced](https://shd101wyy.github.io/markdown-preview-enhanced/)
-* Custom `.less` styles live in `.crossnote/style.less`
-* Taskboards are version-controllable, commit-friendly, and nerd-approved™
+#### ACTIVE & ARCHIVE Markers
+
+`archive` looks for these comment markers:
+
+```markdown
+<!-- ============= ACTIVE START ============= -->
+... active task sections ...
+<!-- ============= ACTIVE END ============= -->
+
+<!-- ============= ARCHIVE START ============= -->
+... archived content will be inserted above END ...
+<!-- ============= ARCHIVE END ============= -->
+```
+
+Archived items are grouped under headers like:
+
+```markdown
+## ✅ Done (2025-07)
+* [x] Example task <span class="tag tag-primary">#proj.demo</span>
+```
+
+Duplicate completed lines (same first line) are skipped.
+
+## Board Markup Basics
+
+A task line:
+
+```markdown
+* [ ] ![todo][todo] Write docs <span class="tag tag-primary">#proj.docs</span>
+```
+
+Completed:
+
+```markdown
+* [x] ![done][done] Write docs <span class="tag tag-primary">#proj.docs</span>
+```
+
+Optional continuation (timestamp, notes) — in the line *directly after* the bullet:
+
+```markdown
+(2025-07-17T13:00:00+00:00)
+```
+
+(Indented continuation lines are moved with the task when archived.)
+
+## Badge / Tag Quick Reference
+
+Sample status badges (generated via [shields.io](https://shields.io)):
+
+![todo](https://img.shields.io/badge/status-QUEUE-blue?style=plastic&logo=github)
+![wip](https://img.shields.io/badge/status-WIP-orange?style=flat-square)
+![done](https://img.shields.io/badge/status-DONE-brightgreen?style=flat-square)
+
+See:
+
+* [`docs/badges.md`](docs/badges.md)
+* [`docs/tags.md`](docs/tags.md)
+
+## Dev Notes
+
+* Works best with VS Code + Markdown Preview Enhanced (or similar markdown render).
+* Apply custom CSS under `docs/assets/css/purrgress.css` to markdown render.
+* All paths resolved relative to repo root; CLI accepts forward‑slash paths.
+* Editable install means code changes are picked up without reinstall, unless you change dependencies.
