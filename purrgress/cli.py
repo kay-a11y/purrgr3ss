@@ -23,8 +23,8 @@ purrdate
     <!--DATE-XYZ--> blocks.
     Options:
       -f, --file         Target markdown file (default: docs/purrboard.md)
-      --preview          Show unified diff; do not write
-      --write            Apply changes
+      --preview / -p     Show unified diff; do not write
+      --write / -w       Apply changes
       --tags-only        Update {{TAGS}} only; skip anchors
       --anchors-only     Update anchors only; skip {{TAGS}}
 
@@ -35,7 +35,7 @@ archive
     Options:
       --src              Source board (default: docs/purrboard.md)
       --dst              Archive file (default: docs/archived.md)
-      --preview          Show diffs; do not write
+      --preview / -p     Show diffs; do not write
 
 ------------------------------------------------------
 Markers

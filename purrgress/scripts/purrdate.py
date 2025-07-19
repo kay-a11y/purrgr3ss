@@ -8,9 +8,9 @@ from purrgress.utils.markdown import inject_tags, replace_anchored_blocks, diff_
 @click.command(name="purrdate")
 @click.option('-f', '--file', default="docs/purrboard.md", show_default=True,
               help="Markdown file to update")
-@click.option('--preview', is_flag=True, 
+@click.option('-p', '--preview', is_flag=True, 
               help="Show changes without writing")
-@click.option('--write', is_flag=True, 
+@click.option('-w', '--write', is_flag=True, 
               help="Actually write changes to file")
 @click.option('--tags-only', is_flag=True, 
               help="Only update {{TAGS}} blocks; skip anchors.")

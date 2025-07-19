@@ -113,7 +113,7 @@ def _flatten_blocks(blocks: List[List[str]]) -> List[str]:
               help="Active purrboard markdown file to sweep.")
 @click.option("--dst", default="docs/archived.md", show_default=True,
               help="Archive destination file.")
-@click.option("--preview", is_flag=True,
+@click.option('-p', "--preview", is_flag=True,
               help="Preview diff; do not modify files.")
 def archive(src: str, dst: str, preview: bool) -> None:
     src_lines = read_lines(src)
@@ -145,9 +145,9 @@ def archive(src: str, dst: str, preview: bool) -> None:
 
     new_dst_lines = dst_lines[:]
     if existing_idx == -1:
-        header = f"## ✅ Done ({ym})\n\n"
-        new_dst_lines[insert_idx:insert_idx] = [header]
-        insert_idx += 2 
+        header_lines = [f"## ✅ Done ({ym})\n", "\n"]
+        new_dst_lines[insert_idx:insert_idx] = header_lines
+        insert_idx += len(header_lines)
 
     flat_archived_lines = _flatten_blocks(new_blocks_filtered)
     if flat_archived_lines:
