@@ -1,6 +1,7 @@
 # 🐾 purrgr3ss
 
 [![🐱 Open Taskboard](https://img.shields.io/badge/🐱_Open_Taskboard-ff69b4?style=flat-square)](/docs/purrboard.md)
+[![Archive](https://img.shields.io/badge/😽_Open_Archive-86FAA1?style=flat-square)](/docs/archived.md)
 [![🌈 View Tags](https://img.shields.io/badge/View_Tags-ffb347?style=flat-square)](/docs/tags.md)
 [![🏷️ Badge List](https://img.shields.io/badge/Badge_List-87ceeb?style=flat-square)](/docs/badges.md)
 
