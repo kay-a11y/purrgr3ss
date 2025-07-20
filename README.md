@@ -123,6 +123,28 @@ Archived items are grouped under headers like:
 
 Duplicate completed lines (same first line) are skipped.
 
+### `purrgress clean`
+
+Normalize **Unicode punctuation** in Markdown files.
+
+**Print cleaned text to STDOUT:**
+
+```bash
+purrgress clean README.md
+```
+
+**Overwrite files in place:**
+
+```bash
+purrgress clean docs/**/*.md -w
+```
+
+**Console output:**
+
+```txt
+🖊️ scrubbed <file_path>.md
+```
+
 ## Board Markup Basics
 
 A task line:
@@ -137,7 +159,7 @@ Completed:
 * [x] ![done][done] Write docs <span class="tag tag-primary">#proj.docs</span>
 ```
 
-Optional continuation (timestamp, notes) — in the line *directly after* the bullet:
+Optional continuation (timestamp, notes) - in the line *directly after* the bullet:
 
 ```markdown
 (2025-07-17T13:00:00+00:00)
