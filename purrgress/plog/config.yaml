@@ -1,0 +1,9 @@
+# moods, tags, badges  (shared)
+moods:
+
+tags:
+  learn.netsec: "#learn.netsec"
+  write.docs:   "#write.docs"
+
+badges:
+  WIP: "https://img.shields.io/badge/status-WIP-orange?style=plastic"

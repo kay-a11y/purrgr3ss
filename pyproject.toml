@@ -1,12 +1,18 @@
 [project]
 name = "purrgress"
-version = "0.2.1"
+version = "0.3.0"
 description = "personal productivity automation suite 😼"
 requires-python = ">=3.9"
-dependencies = ["click"]
+dependencies = [
+  "click>=8.1",
+  "PyYAML>=6.0",
+  "pytz>=2024.1",
+  "rich>=13.0"
+]
 
 [project.scripts]
-purrgress = "purrgress.cli:cli"
+purg = "purrgress.cli:cli"
+plog = "purrgress.plog_cli:cli"
 
 [build-system]
 requires      = ["setuptools>=61.0", "wheel"]

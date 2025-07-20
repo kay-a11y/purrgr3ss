@@ -4,7 +4,7 @@ import re
 _REPLACE = {
     '‘': "'", '’': "'", '“': '"', '”': '"',
     '—': '-', ' ': ' ', ' ':' ', ' ': ' ', 
-    '–': '-', 
+    '–': '-', '‑': '-',
 }
 _PATTERN = re.compile("|".join(map(re.escape, _REPLACE)))
 
