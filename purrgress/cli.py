@@ -14,6 +14,8 @@ Examples:
     purrgress purrdate --write
     purrgress archive --preview
     purrgress archive
+    purrgress clean docs/purrboard.md
+    purrgress clean docs/purrboard.md --write 
 
 ------------------------------------------------------
 Current Subcommands
@@ -23,8 +25,8 @@ purrdate
     <!--DATE-XYZ--> blocks.
     Options:
       -f, --file         Target markdown file (default: docs/purrboard.md)
-      --preview / -p     Show unified diff; do not write
-      --write / -w       Apply changes
+      --preview, -p      Show unified diff; do not write
+      --write, -w        Apply changes
       --tags-only        Update {{TAGS}} only; skip anchors
       --anchors-only     Update anchors only; skip {{TAGS}}
 
@@ -35,7 +37,17 @@ archive
     Options:
       --src              Source board (default: docs/purrboard.md)
       --dst              Archive file (default: docs/archived.md)
-      --preview / -p     Show diffs; do not write
+      --preview, -p      Show diffs; do not write
+
+clean
+    Normalize Unicode punctuation in Markdown files
+
+Arguments
+    `files`              One or more file paths
+                         (globs work when shell-expanded).
+
+    Options:
+        -w, --write      Overwrite each file in place (default is to print).
 
 ------------------------------------------------------
 Markers
@@ -72,8 +84,9 @@ Built with markdown, cats, and quiet persistence.
 """
 
 import click
-from purrgress.scripts.purrdate import purrdate
+from purrgress.scripts.clean import clean_cmd
 from purrgress.scripts.archive import archive
+from purrgress.scripts.purrdate import purrdate
 
 @click.group()
 def cli():
@@ -82,3 +95,4 @@ def cli():
 
 cli.add_command(purrdate)
 cli.add_command(archive)
+cli.add_command(clean_cmd)
