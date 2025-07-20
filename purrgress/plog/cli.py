@@ -5,6 +5,7 @@ from purrgress.plog import core
 from purrgress.plog.cleanup import tidy_month
 from purrgress.utils.date import now, today_iso
 from purrgress.utils.path import resolve_pathish
+from purrgress.utils.yaml_tools import dump_no_wrap
 
 @click.group(help="Life-log commands")
 @click.option("--tz", metavar="TZ", default=None,
@@ -93,5 +94,6 @@ def tidy(year, month):
         click.echo("Nothing to tidy.")
         return
     data = yaml.safe_load(month_path.read_text()) or {}
-    month_path.write_text(yaml.dump(tidy_month(data), sort_keys=False))
+    cleaned = tidy_month(data)
+    month_path.write_text(dump_no_wrap(cleaned))
     click.echo(f"✨ Tidied {month_path.relative_to(resolve_pathish('purrgress'))}")

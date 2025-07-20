@@ -3,6 +3,7 @@ import yaml
 from purrgress.plog.cleanup import tidy_month
 from purrgress.utils.date import now, today_iso, minutes_between
 from purrgress.utils.path import resolve_pathish
+from purrgress.utils.yaml_tools import dump_no_wrap
 
 DATA_ROOT = resolve_pathish("purrgress/data")
 DRAFT_FILE = DATA_ROOT / ".draft.yaml"
@@ -15,7 +16,7 @@ def _month_file(day_iso: str) -> Path:
 
 def _write_month(path: Path, data: dict):
     clean = tidy_month(data)
-    path.write_text(yaml.dump(clean, sort_keys=False))
+    path.write_text(dump_no_wrap(clean))
 
 # ---------- Open/close session helpers ----------
 def start_session(task: str, tags: list[str], *, tz=None):
