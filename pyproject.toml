@@ -1,6 +1,6 @@
 [project]
 name = "purrgress"
-version = "0.3.0"
+version = "0.3.1"
 description = "personal productivity automation suite 😼"
 requires-python = ">=3.9"
 dependencies = [

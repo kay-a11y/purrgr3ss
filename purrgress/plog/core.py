@@ -1,5 +1,6 @@
 from pathlib import Path
 import yaml
+from purrgress.plog.cleanup import tidy_month
 from purrgress.utils.date import now, today_iso, minutes_between
 from purrgress.utils.path import resolve_pathish
 
@@ -11,6 +12,10 @@ def _month_file(day_iso: str) -> Path:
     p = DATA_ROOT / f"{y}/{m}.yaml"
     p.parent.mkdir(parents=True, exist_ok=True)
     return p
+
+def _write_month(path: Path, data: dict):
+    clean = tidy_month(data)
+    path.write_text(yaml.dump(clean, sort_keys=False))
 
 # ---------- Open/close session helpers ----------
 def start_session(task: str, tags: list[str], *, tz=None):
@@ -39,7 +44,7 @@ def _store_span(draft: dict, *, tz=None):
         dict(task=draft["task"], tags=draft["tags"],
              spans=[f'{draft["start"]}-{draft["end"]}'])
     )
-    month_path.write_text(yaml.dump(data, sort_keys=False))
+    _write_month(month_path, data)
 
 # ---------- Wake/sleep session helpers ----------
 def _store_key(key: str, value: str, *, tz=None):
@@ -51,7 +56,7 @@ def _store_key(key: str, value: str, *, tz=None):
     data = yaml.safe_load(month_path.read_text()) if month_path.exists() else {}
     node = data.setdefault(day_iso, {"sessions": []})
     node[key] = value
-    month_path.write_text(yaml.dump(data, sort_keys=False))
+    _write_month(month_path, data)
 
 def set_wake(time_hm: str, *, tz=None):
     _store_key("wake", time_hm, tz=tz)
@@ -75,3 +80,19 @@ def load_day(day_iso: str) -> dict:
         return {}
     return yaml.safe_load(path.read_text()).get(day_iso, {})
 
+# ---------- Aggregates ----------
+def minutes_for_day(day_iso: str) -> int:
+    node = load_day(day_iso)
+    total = 0
+    for sess in node.get("sessions", []):
+        for span in sess["spans"]:
+            s, e = span.split("-")
+            total += minutes_between(s, e)
+    return total
+
+def minutes_for_month(year: int, month: int) -> int:
+    month_path = DATA_ROOT / f"{year}/{month:02}.yaml"
+    if not month_path.exists():
+        return 0
+    data = yaml.safe_load(month_path.read_text()) or {}
+    return sum(minutes_for_day(day) for day in data)
