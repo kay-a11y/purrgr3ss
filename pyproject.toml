@@ -1,13 +1,16 @@
 [project]
 name = "purrgress"
-version = "0.3.2"
+version = "0.4.1"
 description = "personal productivity automation suite 😼"
 requires-python = ">=3.9"
 dependencies = [
   "click>=8.1",
   "PyYAML>=6.0",
   "pytz>=2024.1",
-  "rich>=13.0"
+  "rich>=13.0",
+  "questionary>=2.0",
+  "pandas>=2.0",
+  "matplotlib>=3.8"
 ]
 
 [project.scripts]

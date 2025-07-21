@@ -1,10 +1,13 @@
 import click
 import yaml
+from questionary import checkbox
 from rich import print
 from purrgress.plog import core
+from purrgress.plog.config import CFG
 from purrgress.plog.cleanup import tidy_month
 from purrgress.utils.date import now, today_iso
 from purrgress.utils.path import resolve_pathish
+from purrgress.plog.reports import make_heatmap
 from purrgress.utils.yaml_tools import dump_no_wrap
 
 @click.group(help="Life-log commands")
@@ -20,11 +23,35 @@ def _tz(ctx):
 # ----------- start / stop ----------
 @log_group.command()
 @click.argument("task")
-@click.option("-t", "--tags", multiple=True)
+@click.option("-t", "--tags",  multiple=True, help="Repeatable tag option")
+@click.option("-m", "--moods", multiple=True, help="Repeatable mood option")
 @click.pass_context
-def start(ctx, task, tags):
-    sess = core.start_session(task, list(tags), tz=_tz(ctx))
-    print(f"[bold green]⏳ Started[/] {task} at {sess['start']}")
+def start(ctx, task, tags, moods):
+    cfg = CFG()
+
+    if not tags:
+        tag_choices = [
+            {"name": k, "checked": False} for k in cfg["tags"].keys()
+        ]
+        tags = checkbox(
+            "Select tag(s)  (space = toggle, enter = accept)",
+            choices=tag_choices,
+        ).unsafe_ask()
+
+    if not moods:
+        mood_choices = [
+            {"name": k, "checked": False} for k in cfg["moods"].keys()
+        ]
+        moods = checkbox(
+            "Select mood(s) (space = toggle, enter = accept)",
+            choices=mood_choices,
+        ).unsafe_ask()
+
+    tags  = list(tags)
+    moods = list(moods)
+
+    sess = core.start_session(task, tags, moods, tz=_tz(ctx))
+    print(f"[bold green]⏳ Started[/bold green] {task} at {sess['start']}")
 
 @log_group.command()
 @click.pass_context
@@ -82,6 +109,7 @@ def month(year, month):
     h, mm = divmod(minutes, 60)
     print(f"[bold green]{y}-{m:02} total:[/bold green] {h}h{mm:02d}m ({minutes} mins)")
 
+# ----------- tidy ----------
 @log_group.command()
 @click.option("--year",  type=int, default=None)
 @click.option("--month", type=int, default=None)
@@ -97,3 +125,21 @@ def tidy(year, month):
     cleaned = tidy_month(data)
     month_path.write_text(dump_no_wrap(cleaned))
     click.echo(f"✨ Tidied {month_path.relative_to(resolve_pathish('purrgress'))}")
+
+
+# ----------- heatmap ----------
+@log_group.command()
+@click.option("--year",  type=int, 
+              help="Year (default: this year)")
+@click.option("--month", type=int, 
+              help="Month 1-12 (default: this month)")
+@click.option("--theme", default="viridis",
+              help="Matplotlib colormap (viridis, magma, plasma, turbo, etc.)")
+@click.pass_context
+def heatmap(ctx, year, month, theme):
+    """Generate an hour-by-day heat-map PNG."""
+    dt   = now()
+    y    = year  or dt.year
+    m    = month or dt.month
+    path = make_heatmap(y, m, theme=theme, tz=_tz(ctx))
+    print(f"🖼  Heat-map saved to {path}")

@@ -19,10 +19,15 @@ def _write_month(path: Path, data: dict):
     path.write_text(dump_no_wrap(clean))
 
 # ---------- Open/close session helpers ----------
-def start_session(task: str, tags: list[str], *, tz=None):
+def start_session(task: str, tags: list[str], moods: list[str], *, tz=None):
     if DRAFT_FILE.exists():
         raise RuntimeError("A session is already running. Stop it first.")
-    draft = dict(task=task, tags=tags, start=now(tz).strftime("%H:%M"))
+    draft = {
+        "task": task,
+        "tags": tags,
+        "moods": moods,
+        "start": now(tz).strftime("%H:%M"),
+    }
     DRAFT_FILE.parent.mkdir(parents=True, exist_ok=True)
     DRAFT_FILE.write_text(yaml.dump(draft))
     return draft
@@ -42,8 +47,12 @@ def _store_span(draft: dict, *, tz=None):
     data = yaml.safe_load(month_path.read_text()) if month_path.exists() else {}
     node = data.setdefault(day_iso, {"sessions": []})
     node["sessions"].append(
-        dict(task=draft["task"], tags=draft["tags"],
-             spans=[f'{draft["start"]}-{draft["end"]}'])
+        dict(
+            task=draft["task"],
+            tags=draft.get("tags", []),
+            moods=draft.get("moods", []), 
+            spans=[f'{draft["start"]}-{draft["end"]}'],
+        )
     )
     _write_month(month_path, data)
 

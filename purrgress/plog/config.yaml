@@ -1,9 +1,30 @@
-# moods, tags, badges  (shared)
+# ─── purr log shared config ─────
+
 moods:
+  focus:       "focus"        # laser‑beam mode
+  chill:       "chill"        # relaxed / background podcasts
+  inspire:     "inspire"      # sparks are flying
+  pumped:      "pumped"       # hyped, coffee hitting
+  happy:       "happy"        # upbeat, dancing in the chair
+  tired:       "tired"        # low battery but grinding
+  lazy:        "lazy"         # noodling, not pushing hard
+  stressed:    "stressed"     # 🥵 deadline panic
+  frustrated:  "frustrated"   # bugs everywhere
+  cry:         "cry"          # emotional crash
+  angry:       "angry"        # smashing keyboard - channel it!
+  # add more any time…
 
 tags:
-  learn.netsec: "#learn.netsec"
-  write.docs:   "#write.docs"
+  learn.netsec:   "#learn.netsec"
+  learn.web:      "#learn.web"
+  write.docs:     "#write.docs"
+  proj.plog:      "#proj.plog"
+  proj.purg:      "#proj.purg"
+  ops.git:        "#ops.git"
+  life.misc:      "#life.misc"
+  # extend freely…
 
-badges:
-  WIP: "https://img.shields.io/badge/status-WIP-orange?style=plastic"
+badges:           # (still used by purrboard markdown)
+  TODO: "https://img.shields.io/badge/status-TODO-blue?style=plastic"
+  WIP:  "https://img.shields.io/badge/status-WIP-orange?style=plastic"
+  DONE: "https://img.shields.io/badge/status-DONE-green?style=plastic"

@@ -13,20 +13,27 @@ def tidy_day(node: dict) -> dict:
 
     merged = {}
     for sess in node.get("sessions", []):
-        k = (sess["task"], tuple(sess["tags"]))
-        merged.setdefault(k, []).extend(sess["spans"])
+        key = (sess["task"], tuple(sess["tags"]))
+        bucket = merged.setdefault(key, {"spans": [], "moods": set()})
+        bucket["spans"].extend(sess["spans"])
+        bucket["moods"].update(sess.get("moods", []))
+
     node["sessions"] = [
-        dict(task=k[0], tags=list(k[1]), spans=sorted(v, key=_span_key))
+        dict(
+            task=k[0],
+            tags=list(k[1]),
+            spans=sorted(set(v["spans"]), key=_span_key),
+            moods=sorted(v["moods"]) if v["moods"] else []
+        )
         for k, v in merged.items()
     ]
 
     node["sessions"].sort(key=lambda s: _span_key(s["spans"][0]))
 
-    ordered = {}
-    for k in ("wake", "sleep", "sessions"):
-        if k in node:
-            ordered[k] = node[k]
+    ordered = {k: node[k] for k in ("wake", "sleep") if k in node}
+    ordered["sessions"] = node["sessions"]
     return ordered
+
 
 def tidy_month(data: dict) -> dict:
     return {day: tidy_day(node) for day, node in sorted(data.items())}
