@@ -5,184 +5,107 @@
 [![🌈 View Tags](https://img.shields.io/badge/View_Tags-ffb347?style=flat-square)](/docs/tags.md)
 [![🏷️ Badge List](https://img.shields.io/badge/Badge_List-87ceeb?style=flat-square)](/docs/badges.md)
 
-Lightweight markdown task boards / todo list + Python CLI automation.
+*Markdown task-boards  / todo list* **(`purg`)** + *Life-log / study tracker* **(`plog`)**, generating the latest **heat-map**, all version-controlled with git.
 
-🐈‍⬛ **purrgr3ss** is text‑first. Use git. Archive often. Pet cat. Repeat.
+![plog demo](/assets/img/plog-demo.gif)
 
-**CLI command:** `purrgress`
+![Heat-map Preview](/purrgress/visuals/2025/06_heatmap_viridis.png)
 
-## What It Does
+<details>
+<summary>🌑 Click to preview the dark mode</summary>
+<p align="center">
+  <img src="/purrgress/visuals/2025/06_heatmap_viridis_dark.png" alt="theme" width="100%" style="filter: brightness(100%)">
+</p>
+</details>
 
-* Maintain a markdown task board (`docs/purrboard.md`) with visual badges + tags.
-* Auto‑inject rolling dates (today / ISO week / month) into placeholders and anchored comment blocks.
-* Sweep completed tasks into an archive file (`docs/archived.md`), grouped by month.
-* Preview all changes before writing.
-
-Minimal. Text‑based. Git‑friendly.
-
-## Install
-
-From the repo root:
+## Quick Start
 
 ```bash
 pip install -e .
-```
 
-This installs the console script **`purrgress`** into your environment.
-
-Run:
-
-```bash
-purrgress --help
+# board workflow:
 purrgress purrdate --write # initialize date tags
+# add and finish tasks in `/docs/purrboard.md`
+purg archive               # sweep completed tasks
+
+# life-log workflow:
+plog start "write docs" -t write.doc
+plog stop
+plog day                   # clipboard summary
+plog heatmap --theme viridis # generate visuals/2025/07_heatmap_magma.png
 ```
 
-## Subcommands
+## Feature
 
-### `purrgress purrdate`
+| | **purg** - task board | **plog** - life log |
+|---|---|---|
+| Core file(s) | `docs/purrboard.md` | `purrgress/data/<year>/<month>.yaml` |
+| Key commands | `add`, `archive`, `purrdate`, `clean` | `start/stop`, `wake/sleep`, `status`, `day`, `month`, `heatmap`, `tidy` |
+| Tags & badges | `/docs/tags.md` & `/docs/badges.md`  | `plog/config.yaml` (can be shared) |
+| Output | Pretty markdown with shield badges | YAML + PNG heat-maps |
+| Automation hooks | Pre-commit board tidy | Auto-tidy YAML on every write |
 
-Update date placeholders and/or anchored date blocks in a markdown file.
+**purg**:
 
-**Default target:** `docs/purrboard.md`
+* Maintain a markdown task board (`docs/purrboard.md`) with visual badges + tags.
+* Auto-inject rolling dates (today / ISO week / month) into placeholders and anchored comment blocks.
+* Sweep completed tasks into an archive file (`docs/archived.md`), grouped by month.
+* Preview all changes before writing.
 
-**Tokens supported** (from `purrgress.utils.date.date_vars()`):
+Minimal. Text-based. Git-friendly.
 
-* `{{DATE_TODAY}}`
-* `{{DATE_WEEK}}`
-* `{{DATE_WEEK_RANGE}}`
-* `{{DATE_MONTH}}`
-* `{{LAST_UPDATED}}`
+---
 
-**Anchors:** HTML comments followed by a `<sub>` line are rewritten, e.g.
+**plog**:
 
-```markdown
-<!--DATE-TODAY-->
-<sub><em>{{DATE_TODAY}}</em></sub>
-```
+* **One-keystroke life-logging** - `plog start/stop` captures every study/work span; prompts with an arrow-key checklist if you omit tags or moods.
+* **Wake / sleep tracking** - `plog wake` & `plog sleep` stamp your daily rhythm for later analysis.
+* **Instant summaries** - `plog status`, `plog day`, `plog month` echo totals.
+* **Heat-map generator** - `plog heatmap --theme magma --dark` turns any month into a colourful hour-by-day PNG (saved under `purrgress/visuals/`).
+* **Cross-midnight smartness** - spans that roll past 00 : 00 are bucketed into the proper days on your charts.
+* **Auto-tidy YAML** - every write dedupes, sorts, merges sessions, and keeps long task lines un-wrapped. One-shot `plog tidy` retro-cleans old months.
+* **Shared config** - moods, tag codes, and badge URLs live in `plog/config.yaml`.
+* **Dark-mode plotting** - add `--dark` to heat-maps for a charcoal canvas that pops at 3 AM.
+* **Fully tested** - pytest fixtures sandbox all logs, so `pytest -q` runs green without touching your real data.
 
-**Flags:**
+CLI-first. YAML-backed. Git-versioned.
+
+## Install
+
+This installs two console scripts:
+
+* **`purg`** - board automation (`purrgress = "purrgress.cli:cli"`)
+* **`plog`** - life-log tool (`plog   = "purrgress.plog_cli:cli"`)
+
+## CLI cheat-sheets
+
+Learn more details in [wiki](https://github.com/kay-a11y/purrgr3ss/wiki).
+
+### purg
 
 ```bash
-purrgress purrdate -f docs/purrboard.md --preview   # show diff only
-purrgress purrdate -f docs/purrboard.md --write     # apply
-purrgress purrdate --tags-only                      # update {{...}} only
-purrgress purrdate --anchors-only                   # update anchors only
+purg purrdate        # update {{DATE_*}} placeholders
+purg archive         # move completed tasks → archive
+purg clean           # unicode-punct normalize
 ```
 
-> If neither `--write` nor `--preview` is given, a preview is shown (no write).
-
-### `purrgress archive`
-
-Move completed tasks from the **ACTIVE** block in a board into a month bucket in an archive file.
-
-**Defaults:**
-
-* Source board: `docs/purrboard.md`
-* Destination archive: `docs/archived.md`
-* Removes archived tasks from source.
-
-**Preview first:**
+### plog
 
 ```bash
-purrgress archive --preview
+plog start <task> [-t TAG] [-m MOOD]    # prompts if omitted
+plog stop                               # close session
+plog wake HH:MM                         # log wake time
+plog sleep HH:MM                        # log sleep
+plog status                             # open session + today total
+plog day                                # day total
+plog month                              # month total
+plog heatmap [--theme viridis] [--dark] # make PNG
+plog tidy                               # sort/dedupe YAML
 ```
 
-**Apply:**
+## Dev
 
 ```bash
-purrgress archive
+pip install -e .[dev]
+pytest -q     # 100% green
 ```
-
-**Console output:**
-
-```txt
-📤 Archived N items to docs/archived.md
-🧹 Removed N items from docs/purrboard.md
-```
-
-#### ACTIVE & ARCHIVE Markers
-
-`archive` looks for these comment markers:
-
-```markdown
-<!-- ============= ACTIVE START ============= -->
-... active task sections ...
-<!-- ============= ACTIVE END ============= -->
-
-<!-- ============= ARCHIVE START ============= -->
-... archived content will be inserted above END ...
-<!-- ============= ARCHIVE END ============= -->
-```
-
-Archived items are grouped under headers like:
-
-```markdown
-## ✅ Done (2025-07)
-* [x] Example task <span class="tag tag-primary">#proj.demo</span>
-```
-
-Duplicate completed lines (same first line) are skipped.
-
-### `purrgress clean`
-
-Normalize **Unicode punctuation** in Markdown files.
-
-**Print cleaned text to STDOUT:**
-
-```bash
-purrgress clean README.md
-```
-
-**Overwrite files in place:**
-
-```bash
-purrgress clean docs/**/*.md -w
-```
-
-**Console output:**
-
-```txt
-🖊️ scrubbed <file_path>.md
-```
-
-## Board Markup Basics
-
-A task line:
-
-```markdown
-* [ ] ![todo][todo] Write docs <span class="tag tag-primary">#proj.docs</span>
-```
-
-Completed:
-
-```markdown
-* [x] ![done][done] Write docs <span class="tag tag-primary">#proj.docs</span>
-```
-
-Optional continuation (timestamp, notes) - in the line *directly after* the bullet:
-
-```markdown
-(2025-07-17T13:00:00+00:00)
-```
-
-(Indented continuation lines are moved with the task when archived.)
-
-## Badge / Tag Quick Reference
-
-Sample status badges (generated via [shields.io](https://shields.io)):
-
-![todo](https://img.shields.io/badge/status-QUEUE-blue?style=plastic&logo=github)
-![wip](https://img.shields.io/badge/status-WIP-orange?style=flat-square)
-![done](https://img.shields.io/badge/status-DONE-brightgreen?style=flat-square)
-
-See:
-
-* [`docs/badges.md`](docs/badges.md)
-* [`docs/tags.md`](docs/tags.md)
-
-## Dev Notes
-
-* Works best with VS Code + Markdown Preview Enhanced (or similar markdown render).
-* Apply custom CSS under `docs/assets/css/purrgress.css` to markdown render.
-* All paths resolved relative to repo root; CLI accepts forward‑slash paths.
-* Editable install means code changes are picked up without reinstall, unless you change dependencies.

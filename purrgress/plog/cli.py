@@ -135,11 +135,13 @@ def tidy(year, month):
               help="Month 1-12 (default: this month)")
 @click.option("--theme", default="viridis",
               help="Matplotlib colormap (viridis, magma, plasma, turbo, etc.)")
+@click.option("--dark/--light", default=False, 
+              help="Dark background")
 @click.pass_context
-def heatmap(ctx, year, month, theme):
+def heatmap(ctx, year, month, theme, dark):
     """Generate an hour-by-day heat-map PNG."""
     dt   = now()
     y    = year  or dt.year
     m    = month or dt.month
-    path = make_heatmap(y, m, theme=theme, tz=_tz(ctx))
+    path = make_heatmap(y, m, theme=theme, dark=dark, tz=_tz(ctx))
     print(f"🖼  Heat-map saved to {path}")

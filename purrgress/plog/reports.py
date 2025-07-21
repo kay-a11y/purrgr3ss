@@ -64,22 +64,40 @@ def _fill_df(df: pd.DataFrame, month_data: dict) -> pd.DataFrame:
     return df
 
 # ────────────────────────────────────────────────────────────
-def make_heatmap(year: int, month: int, *, theme: str = "viridis", tz=None) -> Path:
+def make_heatmap(year: int, month: int, *, theme: str = "viridis", dark: bool = False, tz=None) -> Path:
     data  = _month_yaml(year, month)
     df    = _fill_df(_empty_df(year, month), data)
 
     out_dir = Path(resolve_pathish(f"purrgress/visuals/{year}"))
     out_dir.mkdir(parents=True, exist_ok=True)
-    out_png = out_dir / f"{month:02}_heatmap_{theme}.png"
+    suffix  = "dark" if dark else "light"
+    out_png = out_dir / f"{month:02}_heatmap_{theme}_{suffix}.png"
 
-    plt.figure(figsize=(12, 6))
-    plt.imshow(df, aspect="auto", origin="lower", cmap=theme)
-    plt.yticks(range(24), range(24))
-    plt.xticks(range(len(df.columns)), df.columns)
-    plt.xlabel("Day")
-    plt.ylabel("Hour")
-    plt.title(f"Study Heat-map {year}-{month:02}")
-    plt.colorbar(label="Minutes")
+    fig, ax = plt.subplots(figsize=(12, 6))
+
+    if dark:
+        bg = "#121212"
+        fig.patch.set_facecolor(bg)
+        ax.set_facecolor(bg)
+        ax.tick_params(colors="white")
+        ax.xaxis.label.set_color("white")
+        ax.yaxis.label.set_color("white")
+        ax.title.set_color("white")
+
+    img = ax.imshow(df, aspect="auto", origin="lower", cmap=theme)
+    ax.set_yticks(range(24))
+    ax.set_yticklabels(range(24))
+    ax.set_xticks(range(len(df.columns)))
+    ax.set_xticklabels(df.columns)
+    ax.set_xlabel("Day")
+    ax.set_ylabel("Hour")
+    ax.set_title(f"Study Heat-map {year}-{month:02}")
+
+    cbar = plt.colorbar(img, label="Minutes studied")
+    if dark:
+        cbar.ax.yaxis.set_tick_params(color="white")
+        plt.setp(cbar.ax.get_yticklabels(), color="white")
+
     plt.tight_layout()
     plt.savefig(out_png, dpi=150)
     plt.close()

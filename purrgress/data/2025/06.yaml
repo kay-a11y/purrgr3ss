@@ -1,0 +1,144 @@
+'2025-06-01':
+  sessions:
+    - task: Review Python basics
+      tags: [study.python]
+      spans: [09:32-12:01]
+      moods: [focus]
+'2025-06-02':
+  sessions: []
+'2025-06-03':
+  sessions:
+    - task: Read AI news, make notes
+      tags: [read.news]
+      spans: [20:20-23:36]
+      moods: [chill]
+'2025-06-04':
+  sessions: []
+'2025-06-05':
+  sessions:
+    - task: Data structures practice
+      tags: [study.cs]
+      spans: [13:45-16:12]
+      moods: [lazy]
+'2025-06-06':
+  sessions:
+    - task: Algorithm exercises
+      tags: [study.cs]
+      spans: [10:00-15:27]
+      moods: [focus]
+    - task: Wrote blog post about recursion
+      tags: [write.blog]
+      spans: [21:05-23:41]
+      moods: [satisfied]
+'2025-06-07':
+  sessions: []
+'2025-06-08':
+  sessions:
+    - task: Watched security video
+      tags: [watch.security]
+      spans: [14:33-17:55]
+      moods: [curious]
+'2025-06-09':
+  sessions: []
+'2025-06-10':
+  sessions:
+    - task: Coded small CLI tool
+      tags: [proj.cli]
+      spans: [18:14-20:43]
+      moods: [inspire]
+'2025-06-11':
+  sessions:
+    - task: Did SQL challenges
+      tags: [study.sql]
+      spans: [22:13-02:31]
+      moods: [phew]
+'2025-06-12':
+  sessions: []
+'2025-06-13':
+  sessions:
+    - task: Read new hacking zine
+      tags: [read.zine]
+      spans: [15:02-17:31]
+      moods: [happy]
+'2025-06-14':
+  sessions: []
+'2025-06-15':
+  sessions:
+    - task: JavaScript DOM review
+      tags: [study.js]
+      spans: [10:44-13:01]
+      moods: [tired]
+    - task: CTF warm-up
+      tags: [play.ctf]
+      spans: [21:09-23:55]
+      moods: [excited]
+'2025-06-16':
+  sessions: []
+'2025-06-17':
+  sessions:
+    - task: Nmap scanning basics
+      tags: [study.nmap]
+      spans: [18:19-21:33]
+      moods: [curious]
+'2025-06-18':
+  sessions: []
+'2025-06-19':
+  sessions:
+    - task: Fixed minor bug in CLI tool
+      tags: [proj.cli]
+      spans: [08:41-10:21]
+      moods: [phew]
+    - task: Listened to security podcast
+      tags: [listen.podcast]
+      spans: [20:15-01:28]
+      moods: [chill]
+'2025-06-20':
+  sessions:
+    - task: Organized notes, deleted old files
+      tags: [organize]
+      spans: [14:19-16:33]
+      moods: [lazy]
+'2025-06-21':
+  sessions: []
+'2025-06-22':
+  sessions:
+    - task: CSS flexbox practice
+      tags: [study.css]
+      spans: [12:18-16:21]
+      moods: [focus]
+'2025-06-23':
+  sessions: []
+'2025-06-24':
+  sessions:
+    - task: Read about Wi-Fi security
+      tags: [study.security]
+      spans: [21:07-02:28]
+      moods: [curious]
+'2025-06-25':
+  sessions:
+    - task: Practiced shell scripting
+      tags: [study.shell]
+      spans: [22:44-01:10]
+      moods: [chill]
+'2025-06-26':
+  sessions: []
+'2025-06-27':
+  sessions:
+    - task: Quick Git refresher
+      tags: [study.git]
+      spans: [13:41-18:00]
+      moods: [focus]
+'2025-06-28':
+  sessions: []
+'2025-06-29':
+  sessions:
+    - task: Wrote notes on subnetting
+      tags: [study.network]
+      spans: [17:21-21:43]
+      moods: [inspire]
+'2025-06-30':
+  sessions:
+    - task: Watched Python OOP course
+      tags: [study.python]
+      spans: [07:52-11:50]
+      moods: [tired]
