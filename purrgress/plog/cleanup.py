@@ -28,7 +28,9 @@ def tidy_day(node: dict) -> dict:
         for k, v in merged.items()
     ]
 
-    node["sessions"].sort(key=lambda s: _span_key(s["spans"][0]))
+    node["sessions"].sort(
+        key=lambda s: _span_key(s["spans"][0]) if s["spans"] else datetime.max
+    )
 
     ordered = {k: node[k] for k in ("wake", "sleep") if k in node}
     ordered["sessions"] = node["sessions"]

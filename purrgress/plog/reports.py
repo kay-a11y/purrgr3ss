@@ -30,6 +30,8 @@ def _fill_df(df: pd.DataFrame, month_data: dict):
         day = int(day_iso.split("-")[2])
         col = df.columns.get_loc(day)
         for sess in node.get("sessions", []):
+            if not sess["spans"]:
+                continue
             for span in sess["spans"]:
                 start, end = span.split("-")
                 sdt = datetime.strptime(start, "%H:%M")
