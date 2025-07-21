@@ -1,6 +1,6 @@
 [project]
 name = "purrgress"
-version = "0.4.2"
+version = "0.4.3"
 description = "personal productivity automation suite 😼"
 requires-python = ">=3.9"
 dependencies = [
@@ -12,6 +12,9 @@ dependencies = [
   "pandas>=2.0",
   "matplotlib>=3.8"
 ]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.2", "pytest-mock>=3.14"]
 
 [project.scripts]
 purg = "purrgress.cli:cli"

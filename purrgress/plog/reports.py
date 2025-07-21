@@ -25,27 +25,42 @@ def _empty_df(year: int, month: int) -> pd.DataFrame:
         columns=[d + 1 for d in range(days)]
     )
 
-def _fill_df(df: pd.DataFrame, month_data: dict):
+def _fill_df(df: pd.DataFrame, month_data: dict) -> pd.DataFrame:
     for day_iso, node in month_data.items():
-        day = int(day_iso.split("-")[2])
-        col = df.columns.get_loc(day)
+        day_num = int(day_iso.split("-")[2])
+        day_col = df.columns.get_loc(day_num)
+
         for sess in node.get("sessions", []):
-            if not sess["spans"]:
-                continue
-            for span in sess["spans"]:
-                s, e = span.split("-")
-                sdt = datetime.strptime(s, "%H:%M")
-                edt = datetime.strptime(e, "%H:%M")
+            for span in (sess.get("spans") or []):
+                if not span or "-" not in span or ":" not in span:
+                    continue
+
+                try:
+                    start_str, end_str = span.split("-")
+                except ValueError:
+                    continue
+
+                if not start_str or not end_str or ":" not in start_str or ":" not in end_str:
+                    continue
+
+                try:
+                    sdt = datetime.strptime(start_str, "%H:%M")
+                    edt = datetime.strptime(end_str,   "%H:%M")
+                except ValueError:
+                    continue 
+
                 if edt < sdt:
                     edt += timedelta(days=1)
+
                 cur = sdt
                 while cur < edt:
                     hour = cur.hour
                     day_offset = (cur.date() - sdt.date()).days
-                    col_day = day + day_offset
+                    col_day   = day_num + day_offset
                     if col_day in df.columns:
                         df.iat[hour, df.columns.get_loc(col_day)] += 1
                     cur += timedelta(minutes=1)
+
     return df
 
 # ────────────────────────────────────────────────────────────
