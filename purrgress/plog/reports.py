@@ -33,15 +33,18 @@ def _fill_df(df: pd.DataFrame, month_data: dict):
             if not sess["spans"]:
                 continue
             for span in sess["spans"]:
-                start, end = span.split("-")
-                sdt = datetime.strptime(start, "%H:%M")
-                edt = datetime.strptime(end, "%H:%M")
+                s, e = span.split("-")
+                sdt = datetime.strptime(s, "%H:%M")
+                edt = datetime.strptime(e, "%H:%M")
                 if edt < sdt:
                     edt += timedelta(days=1)
                 cur = sdt
                 while cur < edt:
                     hour = cur.hour
-                    df.iat[hour, col] += 1
+                    day_offset = (cur.date() - sdt.date()).days
+                    col_day = day + day_offset
+                    if col_day in df.columns:
+                        df.iat[hour, df.columns.get_loc(col_day)] += 1
                     cur += timedelta(minutes=1)
     return df
 

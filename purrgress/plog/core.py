@@ -23,6 +23,7 @@ def start_session(task: str, tags: list[str], moods: list[str], *, tz=None):
     if DRAFT_FILE.exists():
         raise RuntimeError("A session is already running. Stop it first.")
     draft = {
+        "date": today_iso(tz), 
         "task": task,
         "tags": tags,
         "moods": moods,
@@ -42,7 +43,7 @@ def stop_session(*, tz=None):
     return draft
 
 def _store_span(draft: dict, *, tz=None):
-    day_iso = today_iso(tz)
+    day_iso = draft.get("date") or today_iso(tz)
     month_path = _month_file(day_iso)
     data = yaml.safe_load(month_path.read_text()) if month_path.exists() else {}
     node = data.setdefault(day_iso, {"sessions": []})
