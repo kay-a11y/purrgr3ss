@@ -24,7 +24,7 @@
 pip install -e .
 
 # board workflow:
-purrgress purrdate --write # initialize date tags
+purg purrdate --write # initialize date tags
 # add and finish tasks in `/docs/purrboard.md`
 purg archive               # sweep completed tasks
 
