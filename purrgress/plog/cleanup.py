@@ -6,36 +6,43 @@ def _span_key(span: str) -> datetime:
 
 def tidy_day(node: dict) -> dict:
     node = deepcopy(node)
+    sessions = node.get("sessions", [])
 
-    for sess in node.get("sessions", []):
-        unique = sorted({s for s in sess["spans"]}, key=_span_key)
-        sess["spans"] = unique
+    for sess in sessions:
+        sess.setdefault("task", "")
+        sess.setdefault("tags", [])
+        sess.setdefault("moods", [])
+        sess.setdefault("spans", [])
+
+    for sess in sessions:
+        spans = sess.get("spans") or []
+        sess["spans"] = sorted(set(spans), key=_span_key) if spans else []
 
     merged = {}
-    for sess in node.get("sessions", []):
+    for sess in sessions:
         key = (sess["task"], tuple(sess["tags"]))
         bucket = merged.setdefault(key, {"spans": [], "moods": set()})
         bucket["spans"].extend(sess["spans"])
         bucket["moods"].update(sess.get("moods", []))
 
-    node["sessions"] = [
-        dict(
-            task=k[0],
-            tags=list(k[1]),
-            spans=sorted(set(v["spans"]), key=_span_key),
-            moods=sorted(v["moods"]) if v["moods"] else []
+    clean_sessions = []
+    for (task, tags), payload in merged.items():
+        spans = sorted(set(payload["spans"]), key=_span_key)
+        moods = sorted(payload["moods"]) if payload["moods"] else []
+        clean_sessions.append(
+            {"task": task, "tags": list(tags), "moods": moods, "spans": spans}
         )
-        for k, v in merged.items()
-    ]
 
-    node["sessions"].sort(
-        key=lambda s: _span_key(s["spans"][0]) if s["spans"] else datetime.max
-    )
+    def first_span_dt(s):
+        return _span_key(s["spans"][0]) if s["spans"] else datetime.max
+    clean_sessions.sort(key=first_span_dt)
 
-    ordered = {k: node[k] for k in ("wake", "sleep") if k in node}
-    ordered["sessions"] = node["sessions"]
+    ordered = {}
+    for k in ("wake", "sleep"):
+        if k in node:
+            ordered[k] = node[k]
+    ordered["sessions"] = clean_sessions
     return ordered
-
 
 def tidy_month(data: dict) -> dict:
     return {day: tidy_day(node) for day, node in sorted(data.items())}
