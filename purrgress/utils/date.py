@@ -1,6 +1,10 @@
 from datetime import date, datetime, timedelta
-from zoneinfo import ZoneInfo 
+from logging import getLogger
+from purrgress.utils import log_call
+from zoneinfo import ZoneInfo
 import os
+
+log = getLogger("plog")
 
 def date_vars() -> dict:
     today = date.today()
@@ -11,7 +15,7 @@ def date_vars() -> dict:
     return {
         '{{DATE_TODAY}}': date.today().strftime('%d-%m-%Y'),
         '{{DATE_WEEK}}': date.today().strftime('%G-W%V'),
-        '{{DATE_WEEK_RANGE}}' : f'{week_start:%d %b} → {week_end:%d %b}', 
+        '{{DATE_WEEK_RANGE}}' : f'{week_start:%d %b} → {week_end:%d %b}',
         '{{DATE_MONTH}}': date.today().strftime('%B %Y'),
         '{{LAST_UPDATED}}': datetime.now().strftime('%d-%m-%Y %H:%M'),
     }
@@ -28,24 +32,38 @@ def anchored_date_lines() -> dict:
         'DATE-MONTH': f'<sub><em>{today.strftime("%B %Y")}</em></sub>',
     }
 
-def _choose_tz(tz_arg: str | None = None):
-    if tz_arg:  
+@log_call()
+def _choose_tz(tz_arg: str | None = None) -> datetime.tzinfo:
+    if tz_arg:
+        log.debug("[_choose_tz] Use explicit timezone: %s", tz_arg)
         return ZoneInfo(tz_arg)
-    env = os.getenv("PLOG_TZ")  
+    env = os.getenv("PLOG_TZ")
     if env:
+        log.debug("[_choose_tz] Use environment timezone: %s", env)
         return ZoneInfo(env)
-    return datetime.now().astimezone().tzinfo
+    sys_tz = datetime.now().astimezone().tzinfo
+    return sys_tz
 
-def now(tz_arg: str | None = None):
-    return datetime.now(tz=_choose_tz(tz_arg))
+@log_call()
+def now(tz_arg: str | None = None) -> datetime:
+    tz = _choose_tz(tz_arg)
+    return datetime.now(tz=tz)
 
-def today_iso(tz_arg: str | None = None):
-    return now(tz_arg).date().isoformat()
+@log_call()
+def today_iso(tz_arg: str | None = None) -> str:
+    today = now(tz_arg).date().isoformat()
+    return today
 
+@log_call()
 def minutes_between(start_hm: str, end_hm: str) -> int:
-    s = datetime.strptime(start_hm, "%H:%M")
-    e = datetime.strptime(end_hm, "%H:%M")
+    try:
+        s = datetime.strptime(start_hm, "%H:%M")
+        e = datetime.strptime(end_hm, "%H:%M")
+    except ValueError as ex:
+        log.error("[minutes_between] Time data must match format '%%H:%%M': %s", ex)
+        raise
     if e < s:
+        log.debug("[minutes_between] end_hm < start_hm; rolling over midnight")
         e += timedelta(days=1)
-    return int((e - s).total_seconds() // 60)
-
+    mins = int((e - s).total_seconds() // 60)
+    return mins

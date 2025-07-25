@@ -1,24 +1,31 @@
-import click
-import yaml
-from questionary import checkbox
 from rich import print
+from rich.console import Console
+from rich.traceback import Traceback
+from questionary import checkbox
 from purrgress.plog import core
+from purrgress.plog import log_setup
 from purrgress.plog.config import CFG
 from purrgress.plog.cleanup import tidy_month
 from purrgress.utils.date import now, today_iso
 from purrgress.utils.path import resolve_pathish
 from purrgress.plog.reports import make_heatmap
 from purrgress.utils.yaml_tools import dump_no_wrap
+import click, yaml, sys
 
 @click.group(help="Life-log commands")
 @click.option("--tz", metavar="TZ", default=None,
               help="IANA timezone (e.g. Europe/Paris). Overrides PLOG_TZ env.")
+@click.option("-v", "--verbose", count=True, help="-v = INFO, -vv = DEBUG")
 @click.pass_context
-def log_group(ctx, tz):
-    ctx.obj = {"tz": tz}
+def log_group(ctx, tz, verbose):
+    level = "WARNING"
+    if verbose == 1:
+        level = "INFO"
+    elif verbose >= 2:
+        level = "DEBUG"
 
-def _tz(ctx):
-    return ctx.obj.get("tz") if ctx.obj else None
+    ctx.obj = {"tz": tz}
+    ctx.obj["log"] = logger = log_setup.init(level)
 
 # ----------- start / stop ----------
 @log_group.command()
@@ -145,3 +152,19 @@ def heatmap(ctx, year, month, theme, dark):
     m    = month or dt.month
     path = make_heatmap(y, m, theme=theme, dark=dark, tz=_tz(ctx))
     print(f"🖼  Heat-map saved to {path}")
+
+@log_group.result_callback()
+def cli_finished(result, **kwargs):
+    pass
+
+def main():
+    try:
+        log_group()
+    except Exception as exc:
+        console = Console()
+        console.print("[bold red]Uncaught error - see details below:[/bold red]")
+        console.print(Traceback.from_exception(type(exc), exc, exc.__traceback__, show_locals=True))
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
