@@ -1,6 +1,32 @@
-import logging, functools, inspect
+"""
+Add the decorator `@log_call()` above any function. If you stack multiple decorators, each one gets its own line, but they must all be directly before the function.
+
+Custom level: `@log_call(logging.INFO)`
+
+Example:
+
+```python
+@log_call()
+def stop_session(...): ...
+
+@log_group.command()
+@log_call(logging.INFO)
+def my_cli_command():
+    ...
+```
+"""
+
+import functools
+import inspect
+import logging
+
 
 def log_call(level=logging.DEBUG):
+    """
+    Decorator: log entry (and exit) with args/kwargs at chosen level.
+    Skips string-building unless the logger is enabled for `level`.
+    """
+
     def decorator(func):
         log = logging.getLogger(func.__module__)
 
@@ -20,4 +46,7 @@ def log_call(level=logging.DEBUG):
     return decorator
 
 def _fmt_params(params: dict) -> str:
+    """
+    Compact k=v, k2=v2 … string for logging.
+    """
     return ", ".join(f"{k}={v!r}" for k, v in params.items())

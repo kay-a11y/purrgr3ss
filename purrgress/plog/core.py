@@ -1,11 +1,14 @@
+import logging
 from logging import getLogger
 from pathlib import Path
+
+import yaml
+
 from purrgress.plog.cleanup import tidy_month
 from purrgress.utils import log_call
-from purrgress.utils.date import now, today_iso, minutes_between
+from purrgress.utils.date import minutes_between, now, today_iso
 from purrgress.utils.path import resolve_pathish
 from purrgress.utils.yaml_tools import dump_no_wrap
-import yaml
 
 DATA_ROOT = resolve_pathish("purrgress/data")
 DRAFT_FILE = DATA_ROOT / ".draft.yaml"
@@ -13,6 +16,15 @@ log = getLogger("plog")
 
 @log_call()
 def _month_file(day_iso: str) -> Path:
+    """
+    Generate the path to the month YAML file for a given date.
+
+    Args:
+        day_iso (str): Date in YYYY-MM-DD format.
+
+    Returns:
+        Path: The Path object to the month's YAML file (e.g. DATA_ROOT/2025/07.yaml).
+    """
     try:
         y, m, _ = day_iso.split("-")
         p = DATA_ROOT / f"{y}/{m}.yaml"
@@ -25,6 +37,13 @@ def _month_file(day_iso: str) -> Path:
 
 @log_call()
 def _write_month(path: Path, data: dict) -> None:
+    """
+    Clean and write session data to the given month YAML file.
+
+    Args:
+        path (Path): Where to write the YAML.
+        data (dict): The raw session data to tidy and write.
+    """
     try:
         log.debug("[_write_month] Cleaning data...")
         clean = tidy_month(data)
@@ -43,6 +62,22 @@ def _write_month(path: Path, data: dict) -> None:
 # ---------- Open/close session helpers ----------
 @log_call()
 def start_session(task: str, tags: list[str], moods: list[str], *, tz: str | None = None) -> dict:
+    """
+    Start a new session and save draft data to file.
+
+    Args:
+        task (str): The task name.
+        tags (list[str]): List of tag strings.
+        moods (list[str]): List of mood strings.
+        tz (str | None): Optional timezone.
+
+    Returns:
+        dict: The draft session data saved to file.
+
+    Raises:
+        RuntimeError: If a session is already running.
+        Exception: On file or directory errors.
+    """
     if DRAFT_FILE.exists():
         raise RuntimeError("A session is already running. Run `plog stop` to stop it first.")
 
@@ -72,6 +107,15 @@ def start_session(task: str, tags: list[str], moods: list[str], *, tz: str | Non
 
 @log_call()
 def stop_session(*, tz: str | None = None) -> dict:
+    """
+    Stop the session, write the stop time and remove the draft file.
+
+    Args:
+        tz (str | None): Optional timezone.
+
+    Returns:
+        dict: The draft session data saved to file.
+    """
     if not DRAFT_FILE.exists():
         log.error("[stop_session] No open session to stop.")
         raise RuntimeError("No open session.")
@@ -94,6 +138,13 @@ def stop_session(*, tz: str | None = None) -> dict:
 
 @log_call()
 def _store_span(draft: dict, *, tz: str | None = None) -> None:
+    """
+    store the session data from draft to month file
+
+    Args:
+        draft (dict): The draft session data saved to file.
+        tz (str | None, optional): Optional timezone.
+    """
     day_iso = draft.get("date") or today_iso(tz)
 
     try:
@@ -130,49 +181,139 @@ def _store_span(draft: dict, *, tz: str | None = None) -> None:
         raise
 
 # ---------- Wake/sleep session helpers ----------
+@log_call()
 def _store_key(key: str, value: str, *, tz: str | None = None):
+    """
+    Set wake: or sleep: for today.  If it already exists, overwrite.
+
+    Args:
+        key (str): The key to set ("wake" or "sleep").
+        value (str): The time value in "HH:MM" format.
+        tz (str | None, optional): Optional timezone for today.
+
+    Raises:
+        Exception: If reading or writing files fails.
+    """
     day_iso = today_iso(tz)
-    month_path = _month_file(day_iso)
-    data = yaml.safe_load(month_path.read_text()) if month_path.exists() else {}
+
+    try:
+        month_path = _month_file(day_iso)
+    except Exception as e:
+        log.error("[_store_key] Failed to resolve month path for day %s: %s", day_iso, e)
+        raise
+
+    try:
+        if month_path.exists():
+            data = yaml.safe_load(month_path.read_text())
+        else:
+            data = {}
+    except Exception as e:
+        log.error("[_store_key] Failed to read month file %s: %s", month_path, e)
+        raise
+
     node = data.setdefault(day_iso, {"sessions": []})
     node[key] = value
-    _write_month(month_path, data)
 
+    try:
+        _write_month(month_path, data)
+        log.info("[_store_key] Month file updated successfully.")
+    except Exception as e:
+        log.error("[_store_key] Failed to write updated month file %s: %s", month_path, e)
+        raise
+
+@log_call()
 def set_wake(time_hm: str, *, tz: str | None = None):
+    """
+    Set today's wake time in "HH:MM" format.
+
+    Args:
+        time_hm (str): Wake time as "HH:MM".
+        tz (str | None, optional): Optional timezone.
+    """
     _store_key("wake", time_hm, tz=tz)
 
+@log_call()
 def set_sleep(time_hm: str, *, tz: str | None = None):
+    """
+    Set today's sleep time in "HH:MM" format.
+
+    Args:
+        time_hm (str): Sleep time as "HH:MM".
+        tz (str | None, optional): Optional timezone.
+    """
     _store_key("sleep", time_hm, tz=tz)
 
-# ---------- Utilities ----------
-def calc_today_total():
-    node = load_day(today_iso())
-    total = 0
-    for sess in node.get("sessions", []):
-        for span in sess["spans"]:
-            s, e = span.split("-")
-            total += minutes_between(s, e)
-    return total  # minutes
-
+@log_call()
 def load_day(day_iso: str) -> dict:
-    path = _month_file(day_iso)
-    if not path.exists():
-        return {}
-    return yaml.safe_load(path.read_text()).get(day_iso, {})
+    """
+    Load session data for a given date from the YAML log.
+
+    Args:
+        day_iso (str): Date in YYYY-MM-DD format.
+
+    Returns:
+        dict: Session data for the day (empty dict if not found).
+    """
+    try:
+        month_path = _month_file(day_iso)
+    except Exception as e:
+        log.error("[load_day] Failed to resolve month path for day %s: %s", day_iso, e)
+        raise
+
+    try:
+        if month_path.exists():
+            month_data = yaml.safe_load(month_path.read_text()) or {}
+            return month_data.get(day_iso, {})
+        else:
+            return {}
+    except Exception as e:
+        log.error("[load_day] Failed to read month file %s: %s", month_path, e)
+        raise
 
 # ---------- Aggregates ----------
+@log_call()
 def minutes_for_day(day_iso: str) -> int:
+    """
+    Calculate the total minutes tracked for the specified day (all sessions combined).
+
+    Args:
+        day_iso (str): Date in YYYY-MM-DD format.
+
+    Returns:
+        int: Total minutes spent (across all sessions and spans).
+    """
     node = load_day(day_iso)
     total = 0
     for sess in node.get("sessions", []):
-        for span in sess["spans"]:
-            s, e = span.split("-")
-            total += minutes_between(s, e)
+        for span in sess.get("spans", []):
+            try:
+                s, e = span.split("-")
+                total += minutes_between(s, e)
+            except Exception as ex:
+                log.warning("[minutes_for_day] Failed to parse span '%s' in %s: %s", span, day_iso, ex)
     return total
 
+@log_call()
 def minutes_for_month(year: int, month: int) -> int:
+    """
+    Calculate the total minutes tracked for a given month.
+
+    Args:
+        year (int): Year as four digits, e.g., 2025.
+        month (int): Month as integer, 1-12.
+
+    Returns:
+        int: Total minutes spent (across all days and sessions in the month).
+    """
     month_path = DATA_ROOT / f"{year}/{month:02}.yaml"
-    if not month_path.exists():
-        return 0
-    data = yaml.safe_load(month_path.read_text()) or {}
-    return sum(minutes_for_day(day) for day in data)
+
+    try:
+        if month_path.exists():
+            month_data = yaml.safe_load(month_path.read_text()) or {}
+            log.debug("[minutes_for_month] Found %d days in month %04d-%02d", len(month_data), year, month)
+            return sum(minutes_for_day(day) for day in month_data)
+        else:
+            return 0
+    except Exception as e:
+        log.error("[minutes_for_month] Failed to read month file %s: %s", month_path, e)
+        raise

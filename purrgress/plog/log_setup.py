@@ -1,5 +1,7 @@
+import logging
+
 from rich.logging import RichHandler
-import sys, logging
+
 
 def init(level="WARNING"):
     logging.basicConfig(

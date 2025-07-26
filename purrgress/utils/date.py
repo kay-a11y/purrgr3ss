@@ -1,8 +1,9 @@
+import os
 from datetime import date, datetime, timedelta
 from logging import getLogger
-from purrgress.utils import log_call
 from zoneinfo import ZoneInfo
-import os
+
+from purrgress.utils import log_call
 
 log = getLogger("plog")
 
@@ -34,6 +35,18 @@ def anchored_date_lines() -> dict:
 
 @log_call()
 def _choose_tz(tz_arg: str | None = None) -> datetime.tzinfo:
+    """
+    Selects the timezone to use, in this order:
+    1. Explicit tz_arg provided by user
+    2. PLOG_TZ environment variable
+    3. System default timezone
+
+    Args:
+        tz_arg (str | None): Explicit timezone name (e.g., 'Asia/Shanghai').
+
+    Returns:
+        tzinfo: The chosen timezone object.
+    """
     if tz_arg:
         log.debug("[_choose_tz] Use explicit timezone: %s", tz_arg)
         return ZoneInfo(tz_arg)
@@ -46,16 +59,21 @@ def _choose_tz(tz_arg: str | None = None) -> datetime.tzinfo:
 
 @log_call()
 def now(tz_arg: str | None = None) -> datetime:
+    """Timezone-aware 'now' as datetime."""
     tz = _choose_tz(tz_arg)
     return datetime.now(tz=tz)
 
 @log_call()
 def today_iso(tz_arg: str | None = None) -> str:
+    """Return YYYY-MM-DD of *today* in chosen tz."""
     today = now(tz_arg).date().isoformat()
     return today
 
 @log_call()
 def minutes_between(start_hm: str, end_hm: str) -> int:
+    """
+    Inclusive minutes between HH:MM strings, rolling past midnight if needed.
+    """
     try:
         s = datetime.strptime(start_hm, "%H:%M")
         e = datetime.strptime(end_hm, "%H:%M")
